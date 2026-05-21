@@ -189,7 +189,6 @@ class App(ctk.CTk):
         self.indoor_label.configure(text=f"{score} PPM", text_color=color)
 
         advice_parts = []
-
         window_state = params["window_state"]
         time_closed = params["time"]
         people = params["people"]
@@ -198,32 +197,35 @@ class App(ctk.CTk):
             if window_state == "Открыто":
                 advice_parts.append("Проветривание достаточно. Можно закрыть окно через 5–10 мин.")
             elif window_state == "Микро":
-                advice_parts.append("Микропроветривание достаточно для поддержания качества воздуха")
+                advice_parts.append("Микропроветривание достаточно для поддержания качества воздуха.")
             else:
-                if time_closed < 60:
-                    advice_parts.append("Качество воздуха хорошее. Проветривайте каждые 1–2 часа")
+                if time_closed >= 120:
+                    advice_parts.append("Окно закрыто более 2 часов — обязательное проветривание 15+ мин!")
+                elif time_closed >= 60:
+                    advice_parts.append("Рекомендуется открыть окно на 10–15 мин для профилактики.")
                 else:
-                    advice_parts.append("Рекомендуется открыть окно на 10–15 мин для профилактики")
+                    advice_parts.append("Качество воздуха хорошее. Проветривайте каждые 1–2 часа.")
 
         elif score < 1200:
             if window_state == "Закрыто":
-                advice_parts.append(f"Срочно откройте окно! CO₂ повышен из‑за {time_closed} мин без проветривания")
-                advice_parts.append(f"При {people} чел. в помещении проветривайте каждые 40–60 мин по 15–20 мин")
+                if time_closed >= 120:
+                    advice_parts.append("Окно закрыто более 2 часов — обязательное проветривание 15+ мин!")
+                else:
+                    advice_parts.append(f"Срочно откройте окно! CO₂ повышен из‑за {time_closed} мин без проветривания.")
+                advice_parts.append(f"При {people} чел. в помещении проветривайте каждые 40–60 мин по 15–20 мин.")
             elif window_state == "Микро":
-                advice_parts.append("Усильте проветривание — откройте окно полностью на 15–20 мин")
+                advice_parts.append("Усильте проветривание — откройте окно полностью на 15–20 мин.")
             else:
-                advice_parts.append("Продолжайте проветривать ещё 10–15 мин, затем можно прикрыть")
+                advice_parts.append("Продолжайте проветривать ещё 10–15 мин, затем можно прикрыть.")
+            
         else:
             advice_parts.append("КРИТИЧЕСКИЙ УРОВЕНЬ CO₂! Немедленно откройте все окна!")
             if people > 0:
-                advice_parts.append(f"С {people} чел. в помещении требуется интенсивное проветривание 20–30 мин")
-            advice_parts.append("После проветривания установите режим микропроветривания")
-            advice_parts.append("Рассмотрите установку приточной вентиляции")
-
-        if window_state == "Закрыто" and time_closed >= 120:
-            advice_parts.append("Окно закрыто более 2 часов — обязательное проветривание 15+ мин!")
-        elif window_state == "Закрыто" and time_closed >= 60:
-            advice_parts.append("Рекомендуется проветрить помещение 10–15 мин")
+                advice_parts.append(f"С {people} чел. в помещении требуется интенсивное проветривание 20–30 мин.")
+            if window_state == "Закрыто" and time_closed >= 120:
+                advice_parts.append("Окно закрыто более 2 часов — требуется сквозное проветривание!")
+            advice_parts.append("После проветривания установите режим микропроветривания.")
+            advice_parts.append("Рассмотрите установку приточной вентиляции.")
 
         final_advice = " | ".join(advice_parts)
 
@@ -233,6 +235,7 @@ class App(ctk.CTk):
         self.status_textbox.configure(state="disabled")
 
         self.btn_calc.configure(state="normal", text="ПРОВЕРИТЬ СОСТОЯНИЕ")
+
 
 if __name__ == "__main__":
     app = App()
